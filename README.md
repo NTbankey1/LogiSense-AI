@@ -94,3 +94,4 @@ docker compose up --build -d
   <p>Thiết kế bởi <b>Senior System Design Team</b></p>
   <p>© 2026 LogiSense AI. Tất cả quyền được bảo lưu.</p>
 </div>
+# LogiSense-AI
