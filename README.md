@@ -1,46 +1,85 @@
-# LogiSense AI: Nền Tảng Tối Ưu Logistics Dựa Trên AI & Heuristic
+# LogiSense AI: Hệ Thống Quản Trị Logistics Thông Minh Tích Hợp AI
 
 <div align="center">
-  <img src="docs/assets/home.png" alt="LogiSense AI Home" width="100%">
+  <img src="docs/assets/home.png" alt="LogiSense AI Hero" width="100%" style="border-radius: 10px; border: 1px solid #ddd;">
   <br />
   <p align="center">
-    <b>Giải pháp quản lý vận tải thông minh tích hợp AdaBoost Regressor & Thuật toán A*</b>
-    <br />
-    <br />
-    <img src="https://img.shields.io/badge/Status-Production--Ready-brightgreen?style=for-the-badge" alt="Status">
-    <img src="https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python" alt="Python">
-    <img src="https://img.shields.io/badge/FastAPI-Async-009688?style=for-the-badge&logo=fastapi" alt="FastAPI">
-    <img src="https://img.shields.io/badge/React-TypeScript-blue?style=for-the-badge&logo=react" alt="React">
-    <img src="https://img.shields.io/badge/Docker-Microservices-2496ED?style=for-the-badge&logo=docker" alt="Docker">
+    <b>Giải pháp tối ưu vận tải toàn diện: Kết hợp AdaBoost Regressor & Thuật toán A* để giải quyết bài toán ETA chính xác và Lộ trình thông minh.</b>
   </p>
+  
+  [![Status](https://img.shields.io/badge/Status-Production--Ready-brightgreen?style=for-the-badge)](#)
+  [![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python)](#)
+  [![FastAPI](https://img.shields.io/badge/FastAPI-Async-009688?style=for-the-badge&logo=fastapi)](#)
+  [![React](https://img.shields.io/badge/React-TypeScript-blue?style=for-the-badge&logo=react)](#)
 </div>
 
 ---
 
-## 🚀 Tổng Quan Dự Án
+## 💡 Tầm Nhìn Dự Án
 
-**LogiSense AI** là giải pháp phần mềm thông minh giải quyết các thách thức phức tạp trong logistics hiện đại bằng cách kết hợp **Machine Learning** và **Operations Research**. Hệ thống tập trung vào tối ưu hóa thời gian giao hàng (ETA) và lộ trình di chuyển của shipper.
+Trong logistics hiện đại, **"Đường ngắn nhất chưa chắc đã là đường nhanh nhất"**. LogiSense AI được thiết kế để phá vỡ giới hạn của các hệ thống định vị truyền thống bằng cách đưa yếu tố dự báo vào mọi quyết định lộ trình. Chúng tôi không chỉ tìm đường, chúng tôi dự đoán tương lai của mỗi chuyến đi.
 
-## 📸 Giao Diện Ứng Dụng (UI Showcase)
+---
 
-### 📊 Dashboard Vận Hành
-Tổng quan về các chỉ số KPI, số lượng đơn hàng và trạng thái shipper trong thời gian thực.
-![Dashboard](docs/assets/dashboard.png)
+## 🚀 Trải Nghiệm Hệ Thống (Feature Walkthrough)
 
-### 📍 Tối Ưu Hóa Lộ Trình
-Giao diện chính để phân cụm đơn hàng và tìm kiếm đường đi tối ưu bằng thuật toán A* kết hợp AI Heuristic.
-![Optimization](docs/assets/optimization.png)
+Hãy cùng khám phá cách LogiSense AI vận hành thông qua quy trình 4 bước khép kín:
 
-### 📦 Quản Lý Đơn Hàng
-Theo dõi danh sách đơn hàng, trạng thái và ưu tiên xử lý.
-![Orders](docs/assets/orders.png)
+### Bước 1: Giám Sát Hiệu Suất Tổng Thể
+Hệ thống bắt đầu với **Dashboard** trực quan, nơi nhà quản lý có cái nhìn 360 độ về toàn bộ hoạt động vận hành, từ các chỉ số KPI quan trọng đến trạng thái đội ngũ shipper.
+![Operational Dashboard](docs/assets/dashboard.png)
 
-### 🖥️ Giám Sát Thời Gian Thực
-Theo dõi vị trí và tiến độ giao hàng của từng shipper trên bản đồ.
-![Monitor](docs/assets/monitor.png)
+### Bước 2: Quản Lý & Phân Phối Đơn Hàng
+Dữ liệu đơn hàng được tập trung hóa, cho phép lọc, ưu tiên và gán việc một cách thông minh dựa trên vị trí và tải trọng của từng nhân viên giao hàng.
+![Order Management](docs/assets/orders.png)
 
-### 👤 Cá Nhân Hóa & Cấu Hình
-Quản lý hồ sơ người dùng và các thiết lập hệ thống.
+### Bước 3: Tối Ưu Hóa Bằng Trí Tuệ Nhân Tạo (The Core)
+Đây là "bộ não" của hệ thống. Chúng tôi sử dụng mô hình **AdaBoost** để dự báo thời gian (ETA) dựa trên mật độ giao thông và thời gian trong ngày, sau đó dùng kết quả này làm "Heuristic" cho thuật toán **A*** để tìm ra lộ trình nhanh nhất.
+
+<div align="center">
+  <img src="docs/assets/optimization.png" width="49%" alt="Route Calculation" style="border: 1px solid #eee; border-radius: 8px;" />
+  <img src="docs/assets/optimization1.png" width="49%" alt="AI Analysis" style="border: 1px solid #eee; border-radius: 8px;" />
+  <p><i>Giao diện tối ưu hóa đa mục tiêu: Thời gian thực vs. Dự báo AI</i></p>
+</div>
+
+### Bước 4: Điều Hành & Giám Sát Real-time
+Sau khi lộ trình được phê duyệt, hệ thống chuyển sang chế độ giám sát. Vị trí của shipper được cập nhật liên tục trên bản đồ, cho phép xử lý ngay lập tức các sự cố phát sinh.
+![Real-time Monitoring](docs/assets/monitor.png)
+
+---
+
+## 🧠 Kiến Trúc Kỹ Thuật (The "Brain")
+
+LogiSense AI sử dụng kiến trúc **Hybrid Intelligence** để đảm bảo cả độ chính xác và tốc độ xử lý:
+
+```mermaid
+graph LR
+    subgraph "Data Layer"
+        D1[Lịch sử Giao thông]
+        D2[Tọa độ GPS]
+    end
+    
+    subgraph "AI Brain"
+        M1[AdaBoost Regressor] -->|Dự đoán ETA| H[AI Heuristic]
+    end
+    
+    subgraph "Pathfinding"
+        P[Thuật toán A*] <-->|Optimizing| H
+    end
+    
+    D1 & D2 --> M1
+    P --> Result[Lộ trình nhanh nhất thực tế]
+```
+
+### Điểm nhấn kỹ thuật:
+- **Zero-Latency Inference:** Mô hình ML được nạp sẵn vào bộ nhớ (Singleton Pattern), phản hồi dự báo trong < 5ms.
+- **Asynchronous Processing:** Tách biệt luồng tính toán nặng (Optimization) khỏi luồng API bằng Python Async/Await & ThreadPool.
+- **Scalable Infrastructure:** Sẵn sàng triển khai với Docker, hỗ trợ Redis Caching để tăng tốc các yêu cầu lặp lại.
+
+---
+
+## 🛠️ Cấu Hình & Quản Trị
+Hệ thống cho phép tùy biến sâu từ hồ sơ người dùng đến các tham số vận hành, đảm bảo linh hoạt cho nhiều mô hình kinh doanh khác nhau.
 <div align="center">
   <img src="docs/assets/profile.png" width="49%" />
   <img src="docs/assets/settings.png" width="49%" />
@@ -48,50 +87,18 @@ Quản lý hồ sơ người dùng và các thiết lập hệ thống.
 
 ---
 
-## ⚙️ Quy Trình Vận Hành (System Workflow)
+## 📖 Tài Liệu Tham Chiếu
 
-```mermaid
-graph TD
-    A[Đơn hàng mới] --> B{Phân cụm KMeans}
-    B -->|Cluster 1| C[Shipper A]
-    B -->|Cluster 2| D[Shipper B]
-    C --> E[A* Pathfinding + AI Heuristic]
-    D --> F[A* Pathfinding + AI Heuristic]
-    E --> G[Lộ trình tối ưu nhất]
-    F --> H[Lộ trình tối ưu nhất]
-    G --> I[Dashboard & Mobile App]
-    H --> I
-```
-
-## 🚀 Kỹ Thuật Tối Ưu Hóa (High-Performance Engineering)
-
-Dự án được triển khai với các tiêu chuẩn kỹ thuật của một hệ thống **Senior-level**:
-
-1. **Singleton AI Service:** Model AdaBoost được nạp một lần duy nhất vào bộ nhớ (In-memory) để đảm bảo tốc độ inference < 10ms.
-2. **Threaded Connection Pooling:** Sử dụng `ThreadedConnectionPool` cho PostgreSQL để xử lý đồng thời hàng trăm yêu cầu mà không gây nghẽn cổ chai dữ liệu.
-3. **Advanced Async/Sync Handling:** Kết hợp thông minh giữa `async def` cho các I/O tasks và `def` (Thread Pool) cho các tác vụ CPU-bound (A*), giúp Event Loop luôn giải phóng.
-
-## 🛠️ Khởi Chạy Nhanh
-
-```bash
-# Clone và Setup
-git clone https://github.com/ntbankey/logisense-ai.git
-cp .env.example .env
-
-# Chạy bằng Docker (Khuyên dùng)
-docker compose up --build -d
-```
-
-## 📖 Tài Liệu Chuyên Sâu
-
-- 📑 [**Tổng quan hệ thống**](docs/overview.md)
-- 📂 [**Cấu trúc dự án**](docs/project_structure.md)
-- 🧠 [**Kiến trúc ML & Heuristic**](docs/architecture.md)
-- 🚀 [**Hướng dẫn triển khai**](docs/setup.md)
+| Tài liệu | Nội dung chính |
+| :--- | :--- |
+| 📑 [**Tổng Quan**](docs/overview.md) | Mục tiêu, công nghệ và tính năng cốt lõi. |
+| 📂 [**Cấu Trúc**](docs/project_structure.md) | Tổ chức thư mục và kiến trúc Module. |
+| 🧠 [**Thuật Toán**](docs/architecture.md) | Chi tiết về AdaBoost, A* và luồng dữ liệu ML. |
+| 🚀 [**Triển Khai**](docs/setup.md) | Hướng dẫn Docker và cấu hình môi trường. |
 
 ---
 <div align="center">
-  <p>Thiết kế bởi <b>Senior System Design Team</b></p>
-  <p>© 2026 LogiSense AI. Tất cả quyền được bảo lưu.</p>
+  <p>Được phát triển bởi <b>Senior Engineering Team</b></p>
+  <p>© 2026 LogiSense AI. Smart Logistics for a Smarter World.</p>
 </div>
-# LogiSense-AI
+

@@ -1,41 +1,50 @@
-# Kiến Trúc Hệ Thống & Thuật Toán
+# Kiến Trúc Hệ Thống & Thuật Toán Hybrid
 
-LogiSense AI không chỉ sử dụng các thuật toán truyền thống mà còn kết hợp Machine Learning để tối ưu hóa hiệu quả thực tế.
+LogiSense AI không chỉ sử dụng các thuật toán truyền thống mà còn kết hợp Machine Learning để tối ưu hóa hiệu quả thực tế dựa trên dữ liệu lịch sử và điều kiện thời gian thực.
 
-## 🧠 Sự kết hợp giữa AdaBoost và A*
+---
 
-Một bài toán khó trong logistics là: **Đường ngắn nhất chưa chắc đã là đường nhanh nhất.** (Do kẹt xe, số điểm dừng, v.v.)
+## 🧠 Sự kết hợp giữa AdaBoost và A* (The Hybrid Logic)
 
-### 1. Dự đoán ETA với AdaBoost
-Chúng tôi sử dụng **AdaBoost Regressor** vì:
-- **Xử lý phi tuyến tính:** Mối quan hệ giữa (Khoảng cách × Giao thông) và (Thời gian) là không tuyến tính.
-- **Tốc độ inference cực nhanh:** Chỉ mất vài microsecond để đưa ra kết quả, cực kỳ phù hợp cho các bài toán thời gian thực.
-- **Hiệu quả với dữ liệu trung bình:** Hoạt động tốt ngay cả khi tập dữ liệu không quá lớn (10k - 50k bản ghi).
+Thách thức lớn nhất trong logistics đô thị là sự biến động của giao thông. **Đường ngắn nhất (Dijkstra) thường xuyên bị kẹt xe.**
 
-**Input:** Khoảng cách, Mức độ giao thông (0-3), Giờ trong ngày (cyclic encoded), Số điểm dừng.  
-**Output:** Thời gian dự kiến hoàn thành giao hàng (phút).
+### 1. Dự đoán ETA với AdaBoost Regressor
+Chúng tôi chọn **AdaBoost** (Adaptive Boosting) vì khả năng hội tụ nhanh và xử lý cực tốt các đặc trưng phi tuyến tính (như mối quan hệ giữa giờ tan tầm và tốc độ di chuyển).
 
-### 2. Tối ưu lộ trình với A*
-Thay vì dùng hàm Heuristic truyền thống (khoảng cách chim bay), chúng tôi sử dụng kết quả từ AdaBoost làm Heuristic cho thuật toán A*.
+- **Input Features:** `Distance`, `Traffic_Level (0-3)`, `Hour_of_Day (Cyclic)`, `Day_of_Week`, `Number_of_Stops`.
+- **Inference Speed:** < 5ms (nhờ nạp mô hình vào bộ nhớ đệm Singleton).
+- **Mục tiêu:** Tính toán "Chi phí thời gian" dự kiến cho mỗi cạnh (edge) trên bản đồ.
 
-- **g(n):** Thời gian thực tế đã đi qua các điểm trước đó.
-- **h(n):** Thời gian dự kiến (ETA) từ điểm hiện tại đến các điểm còn lại (do AdaBoost cung cấp).
-- **f(n) = g(n) + h(n):** Tìm lộ trình có tổng thời gian dự kiến thấp nhất.
+### 2. Tối ưu lộ trình với A* Pathfinding
+Thay vì sử dụng hàm Heuristic $h(n)$ là khoảng cách Euclid (chim bay), chúng tôi sử dụng kết quả từ AdaBoost làm **AI-driven Heuristic**.
 
-## 🔄 Luồng dữ liệu (Data Flow)
+- **$g(n)$:** Thời gian thực tế đã đi qua từ điểm xuất phát đến node hiện tại.
+- **$h(n)$:** Thời gian dự kiến (ETA) từ node hiện tại đến đích, được dự báo bởi AdaBoost.
+- **$f(n) = g(n) + h(n)$:** Thuật toán luôn ưu tiên mở rộng các node có tổng thời gian dự kiến thấp nhất.
 
-1. **Thu thập dữ liệu:** GPS, Traffic API, Dữ liệu đơn hàng.
-2. **Tiền xử lý:** Feature Engineering (Chuyển đổi tọa độ, encoding thời gian tuần hoàn).
-3. **Huấn luyện mô hình:** AdaBoost học từ dữ liệu lịch sử để hiểu các pattern giao thông.
-4. **API Request:** Khi có đơn hàng mới, hệ thống gọi API `/predict_eta` hoặc `/optimize_route`.
-5. **Thực thi tối ưu:**
-    - Bước 1: Dùng **KMeans** để phân nhóm các đơn hàng cho từng shipper.
-    - Bước 2: Dùng **A* + AdaBoost** để sắp xếp thứ tự giao hàng cho mỗi cụm.
-6. **Phản hồi:** Cập nhật kết quả lên Dashboard và gửi lộ trình cho shipper.
+---
 
-## 🛠️ Hạ tầng kỹ thuật (Infrastructure)
+## 🔄 Luồng dữ liệu (Data Pipeline)
 
-- **PostgreSQL:** Lưu trữ trạng thái bền vững.
-- **Redis:** Lưu trữ tạm thời (Cache) các dự đoán ETA để tăng tốc độ phản hồi cho các tọa độ lân cận.
-- **Celery:** Chạy các job huấn luyện lại (Retrain) mô hình mỗi đêm để cập nhật các biến đổi mới nhất về giao thông.
-- **MLflow:** Theo dõi chỉ số MAE (Mean Absolute Error) để đảm bảo mô hình mới luôn tốt hơn mô hình cũ trước khi được triển khai chính thức.
+1. **Ingestion:** Thu thập tọa độ GPS và mức độ giao thông từ API.
+2. **Preprocessing:** Feature Engineering (Encoding thời gian tuần hoàn để mô hình hiểu được sự lặp lại của các khung giờ trong ngày).
+3. **Inference Layer:** 
+   - Bước 1: **KMeans Clustering** gán các đơn hàng gần nhau cho cùng một shipper.
+   - Bước 2: **A* + AdaBoost** sắp xếp thứ tự giao hàng tối ưu trong mỗi cụm.
+4. **Monitoring:** Kết quả được đẩy về Dashboard và cập nhật liên tục qua WebSocket.
+
+---
+
+## 🛠️ Hạ tầng kỹ thuật (Infrastructure Stack)
+
+- **Backend Logic:** FastAPI xử lý đồng thời (Concurrency) tốt các yêu cầu tính toán lộ trình.
+- **Caching Layer (Redis):** Lưu trữ các kết quả dự đoán cho các cung đường phổ biến để giảm tải cho mô hình ML.
+- **Retraining Loop (MLflow + Celery):** Hệ thống tự động thu thập dữ liệu giao hàng thực tế để tái huấn luyện (Retrain) mô hình AdaBoost hàng tuần, đảm bảo độ chính xác không bị "drifting" theo thời gian.
+
+---
+
+## 🗺️ Lộ trình phát triển (Roadmap)
+
+- [ ] **Giai đoạn 1:** Tích hợp dữ liệu thời tiết (Mưa/Ngập) vào mô hình AdaBoost.
+- [ ] **Giai đoạn 2:** Hỗ trợ tối ưu hóa đa phương tiện (Xe máy, Xe tải, Robot giao hàng).
+- [ ] **Giai đoạn 3:** Áp dụng Reinforcement Learning (Học tăng cường) để shipper tự tối ưu hóa dựa trên kinh nghiệm thực tế.
