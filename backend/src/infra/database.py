@@ -32,7 +32,7 @@ def get_records(limit: int = 50_000) -> list[DeliveryRecord]:
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("""
-                SELECT distance_km, traffic_level, time_of_day, number_of_stops, 
+                SELECT record_id, distance_km, traffic_level, time_of_day, number_of_stops, 
                        actual_delivery_minutes, recorded_at
                 FROM delivery_records 
                 WHERE actual_delivery_minutes IS NOT NULL 
@@ -48,7 +48,7 @@ def get_recent_records(days: int = 7) -> list[DeliveryRecord]:
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("""
-                SELECT distance_km, traffic_level, time_of_day, number_of_stops, 
+                SELECT record_id, distance_km, traffic_level, time_of_day, number_of_stops, 
                        actual_delivery_minutes, recorded_at
                 FROM delivery_records 
                 WHERE recorded_at > NOW() - INTERVAL '%s days'

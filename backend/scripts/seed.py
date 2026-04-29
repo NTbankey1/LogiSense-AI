@@ -18,7 +18,7 @@ except ImportError:
 from src.infra.database import get_db_connection
 
 # Path inside Docker container mount
-XLSX = '/app/SmartLogistics_TrainingData.xlsx'
+XLSX = os.getenv('XLSX_PATH', '/app/SmartLogistics_TrainingData.xlsx')
 
 def read_sheet(wb, name, skip_rows=2):
     """Đọc sheet, bỏ qua hàng title và header thừa."""
@@ -36,7 +36,7 @@ def read_sheet(wb, name, skip_rows=2):
 def seed():
     if not os.path.exists(XLSX):
         print(f"❌ Không tìm thấy file: {XLSX}")
-        print("   Đặt SmartLogistics_TrainingData.xlsx vào thư mục /home/ntbankey/Downloads/web_/")
+        print("   Đảm bảo file tồn tại hoặc cấu hình XLSX_PATH.")
         sys.exit(1)
 
     print(f"📂 Đọc file: {XLSX}")
