@@ -36,8 +36,17 @@ class PredictionService:
             pass # fallback if redis fails
 
         # Build feature vector
-        dist = haversine(req.order_lat, req.order_lng,
-                         req.warehouse_lat, req.warehouse_lng)
+        from src.services.osrm_service import osrm
+        route = osrm.get_route_geometry(
+            (req.warehouse_lat, req.warehouse_lng),
+            (req.order_lat, req.order_lng)
+        )
+        if route["status"] == "ok":
+            dist = route["distance_meters"] / 1000.0
+        else:
+            dist = haversine(req.order_lat, req.order_lng,
+                             req.warehouse_lat, req.warehouse_lng)
+        
         hour = (req.departure_time or datetime.now()).hour
         t_sin, t_cos = cyclic_encode(hour)
 

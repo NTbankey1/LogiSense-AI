@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY requirements.txt .
-RUN pip install --prefix=/install -r requirements.txt
+RUN pip install --no-cache-dir --default-timeout=1000 --prefix=/install -r requirements.txt -i https://repo.huaweicloud.com/repository/pypi/simple/
 
 FROM python:3.12-slim AS runtime
 WORKDIR /app

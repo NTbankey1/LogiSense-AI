@@ -21,15 +21,28 @@ def cluster_and_assign(
     labels = km.fit_predict(coords)
     centers = km.cluster_centers_
 
+    from src.services.osrm_service import osrm
+
     available = [s for s in shippers if s.status != "OFFLINE"]
     assigned_shippers: set[str]  = set()
     cluster_to_shipper: dict[int, str] = {}
 
+    shipper_locations = [(s.current_lat, s.current_lng) for s in available]
+    center_locations = [(float(c[0]), float(c[1])) for c in centers]
+    all_locs = shipper_locations + center_locations
+    matrix_result = osrm.get_distance_matrix(all_locs)
+    durations = matrix_result["durations"]
+    n_shippers = len(available)
+
     for cluster_id in range(km.n_clusters):
-        c_lat, c_lng = centers[cluster_id]
+        def get_duration(s):
+            s_idx = available.index(s)
+            c_idx = n_shippers + cluster_id
+            return durations[s_idx][c_idx]
+
         best = min(
             (s for s in available if s.shipper_id not in assigned_shippers),
-            key=lambda s: (s.current_lat - c_lat)**2 + (s.current_lng - c_lng)**2,
+            key=get_duration,
             default=None
         )
         if best:

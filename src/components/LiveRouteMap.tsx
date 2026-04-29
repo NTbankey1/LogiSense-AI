@@ -2,11 +2,41 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Tooltip, Polyline, CircleMarker, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { Order, Shipper, RouteResponse } from '../services/api';
+import { Order, Shipper, RouteResponse, api } from '../services/api';
 
 // ── Interpolation helper ─────────────────────────────────────────────────────
 function interpolate(p1: [number, number], p2: [number, number], t: number): [number, number] {
   return [p1[0] + (p2[0] - p1[0]) * t, p1[1] + (p2[1] - p1[1]) * t];
+}
+
+function interpolateAlongRoad(segments: any[], t: number): [number, number] {
+  if (!segments || segments.length === 0) return [0, 0];
+  
+  const totalDuration = segments.reduce((sum, s) => sum + s.duration_seconds, 0);
+  let targetTime = t * totalDuration;
+  
+  for (const seg of segments) {
+    if (targetTime <= seg.duration_seconds || seg === segments[segments.length - 1]) {
+      const segT = seg.duration_seconds > 0 ? Math.min(targetTime / seg.duration_seconds, 1) : 1;
+      const coords = seg.geometry; 
+      if (!coords || coords.length === 0) return [0, 0];
+      if (coords.length < 2) return [coords[0][1], coords[0][0]];
+      
+      const n = coords.length - 1;
+      const subIdx = Math.min(Math.floor(segT * n), n - 1);
+      const subT = (segT * n) % 1;
+      const p1 = coords[subIdx];
+      const p2 = coords[subIdx + 1];
+      return [
+        p1[1] + (p2[1] - p1[1]) * subT,
+        p1[0] + (p2[0] - p1[0]) * subT
+      ];
+    }
+    targetTime -= seg.duration_seconds;
+  }
+  const lastSeg = segments[segments.length - 1];
+  const lastCoord = lastSeg.geometry[lastSeg.geometry.length - 1];
+  return [lastCoord[1], lastCoord[0]];
 }
 
 // ── HCM Districts (Approximated Centers) ─────────────────────────────────────
@@ -96,9 +126,51 @@ export const LiveRouteMap: React.FC<LiveRouteMapProps> = ({
 }) => {
   const [progress, setProgress] = useState(0);
   const [viewMode, setViewMode]   = useState<'high-tech' | 'satellite'>('high-tech');
+  const [roadGeometries, setRoadGeometries] = useState<Record<string, any[]>>({});
   
   const orderMap = useMemo(() => Object.fromEntries(orders.map(o => [o.order_id, o])), [orders]);
   const assignedIds = useMemo(() => new Set(routes.flatMap(r => r.route)), [routes]);
+
+  // Fetch road geometries when routes change
+  useEffect(() => {
+    if (routes.length === 0) {
+      setRoadGeometries({});
+      return;
+    }
+
+    const fetchAllGeometries = async () => {
+      const allSegments: { shipperId: string; origin: [number, number]; destination: [number, number] }[] = [];
+      
+      routes.forEach(route => {
+        const shipper = shippers.find(s => s.shipper_id === route.shipper_id);
+        if (!shipper) return;
+        const clOrds = route.route.map(id => orderMap[id]).filter(Boolean);
+        const points: [number, number][] = [[shipper.current_lat, shipper.current_lng], ...clOrds.map(o => [o.latitude, o.longitude] as [number, number])];
+        
+        for (let i = 0; i < points.length - 1; i++) {
+          allSegments.push({ shipperId: route.shipper_id, origin: points[i], destination: points[i+1] });
+        }
+      });
+
+      if (allSegments.length === 0) return;
+
+      try {
+        const response = await api.getRouteGeometry(allSegments.map(s => ({ origin: s.origin, destination: s.destination })));
+        
+        const newGeometries: Record<string, any[]> = {};
+        response.segments.forEach((seg, i) => {
+          const sId = allSegments[i].shipperId;
+          if (!newGeometries[sId]) newGeometries[sId] = [];
+          newGeometries[sId].push(seg);
+        });
+        setRoadGeometries(newGeometries);
+      } catch (err) {
+        console.error("Failed to fetch road geometries", err);
+      }
+    };
+
+    fetchAllGeometries();
+  }, [routes, shippers, orderMap]);
 
   // Simulation loop
   useEffect(() => {
@@ -171,18 +243,48 @@ export const LiveRouteMap: React.FC<LiveRouteMapProps> = ({
             const shipper = shippers.find(s => s.shipper_id === route.shipper_id);
             if (!shipper) return null;
 
-            const path: [number, number][] = [[shipper.current_lat, shipper.current_lng], ...clOrds.map(o => [o.latitude, o.longitude] as [number, number])];
+            const segments = roadGeometries[route.shipper_id] || [];
+            const hasRoadData = segments.length > 0;
+            
+            let path: [number, number][] = [];
+            if (hasRoadData) {
+              path = segments.flatMap(seg => seg.geometry.map((c: any) => [c[1], c[0]] as [number, number]));
+            } else {
+              path = [[shipper.current_lat, shipper.current_lng], ...clOrds.map(o => [o.latitude, o.longitude] as [number, number])];
+            }
 
             // Simulation Logic
             let truckPos: [number, number] = path[0];
             let nextStopIndex = 0;
             if (isSimulating && path.length > 1) {
-              const totalSegments = path.length - 1;
-              const segmentIndex = Math.min(Math.floor(progress * totalSegments), totalSegments - 1);
-              const segmentProgress = (progress * totalSegments) % 1;
-              truckPos = interpolate(path[segmentIndex], path[segmentIndex + 1], segmentProgress);
-              nextStopIndex = segmentIndex + 1;
+              if (hasRoadData) {
+                truckPos = interpolateAlongRoad(segments, progress);
+                
+                // Find next stop index based on progress and segment durations
+                const totalDur = segments.reduce((sum, s) => sum + s.duration_seconds, 0);
+                let currentDur = 0;
+                for (let i = 0; i < segments.length; i++) {
+                  currentDur += segments[i].duration_seconds;
+                  if (currentDur / totalDur >= progress) {
+                    nextStopIndex = i + 1;
+                    break;
+                  }
+                }
+              } else {
+                const totalSegments = path.length - 1;
+                const segmentIndex = Math.min(Math.floor(progress * totalSegments), totalSegments - 1);
+                const segmentProgress = (progress * totalSegments) % 1;
+                truckPos = interpolate(path[segmentIndex], path[segmentIndex + 1], segmentProgress);
+                nextStopIndex = segmentIndex + 1;
+              }
             }
+
+            const totalDistKm = hasRoadData 
+              ? (segments.reduce((sum, s) => sum + s.distance_meters, 0) / 1000).toFixed(1)
+              : '—';
+            const totalDurMin = hasRoadData
+              ? Math.round(segments.reduce((sum, s) => sum + s.duration_seconds, 0) / 60)
+              : '—';
 
             return (
               <React.Fragment key={route.shipper_id}>
@@ -195,7 +297,7 @@ export const LiveRouteMap: React.FC<LiveRouteMapProps> = ({
                    <Tooltip direction="top" opacity={1} permanent={isSimulating}>
                       <div className="bg-black text-white p-2 rounded shadow-2xl border border-white/20">
                          <p className="font-mono text-[9px] uppercase font-bold text-center">Shipper {ci + 1}</p>
-                         <p className="text-[8px] font-mono opacity-60 text-center uppercase tracking-tighter">Velocity: 42 km/h</p>
+                         <p className="text-[8px] font-mono opacity-60 text-center uppercase tracking-tighter">Route: {totalDistKm}km | ETA: {totalDurMin}m</p>
                       </div>
                    </Tooltip>
                 </Marker>

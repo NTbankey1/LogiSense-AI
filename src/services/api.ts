@@ -68,6 +68,20 @@ export interface RouteResponse {
   route: string[];
 }
 
+export interface RouteSegment {
+  origin: [number, number];
+  destination: [number, number];
+}
+
+export interface RouteGeometryResponse {
+  segments: {
+    distance_meters: number;
+    duration_seconds: number;
+    geometry: [number, number][]; // [[lng, lat], ...]
+    status: string;
+  }[];
+}
+
 // ── API helpers ───────────────────────────────────────────────────────────────
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -85,4 +99,5 @@ export const api = {
   getShippers:     ()                     => apiFetch<Shipper[]>('/shippers'),
   getStats:        ()                     => apiFetch<Stats>('/stats'),
   getIncidents:    ()                     => apiFetch<Incident[]>('/recent_incidents'),
+  getRouteGeometry:(segments: RouteSegment[]) => apiFetch<RouteGeometryResponse>('/route_geometry', { method: 'POST', body: JSON.stringify({ segments }) }),
 };

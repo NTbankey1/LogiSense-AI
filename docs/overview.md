@@ -18,24 +18,24 @@ Hệ thống được thiết kế để giải quyết bài toán cốt lõi tr
 
 1. **Dashboard Điều Hành:** Cung cấp cái nhìn tổng thể về hiệu suất, số lượng đơn hàng và trạng thái shipper.
 <div align="center">
-  <img src="assets/dashboard.png" width="100%" alt="Dashboard" style="border: 1px solid #eee; border-radius: 8px;" />
+  <img src="assets/dashboard.png" width="100%" alt="Dashboard" style="border: 1px solid #eee; border-radius: 12px; margin-bottom: 20px;" />
 </div>
 
 2. **Quản lý Đơn hàng:** Tạo mới, theo dõi và ưu tiên các yêu cầu giao hàng.
 <div align="center">
-  <img src="assets/orders.png" width="100%" alt="Orders" style="border: 1px solid #eee; border-radius: 8px;" />
+  <img src="assets/orders.png" width="100%" alt="Orders" style="border: 1px solid #eee; border-radius: 12px; margin-bottom: 20px;" />
 </div>
 
 3. **Bộ não Tối ưu hóa:** Sử dụng AI để phân cụm đơn hàng (KMeans) và tìm lộ trình tối ưu bằng A*.
 <div align="center">
-  <video src="assets/optimization3.mp4" width="100%" autoplay loop muted controls style="border: 1px solid #eee; border-radius: 8px;"></video>
-  <img src="assets/optimization.png" width="49%" alt="Optimization" style="border: 1px solid #eee; border-radius: 8px; margin-top: 10px;" />
-  <img src="assets/optimization1.png" width="49%" alt="Optimization Analysis" style="border: 1px solid #eee; border-radius: 8px; margin-top: 10px;" />
+  <video src="assets/optimization.mp4" width="100%" autoplay loop muted controls style="border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px;"></video>
+  <img src="assets/optimization.png" width="49%" alt="Optimization" style="border: 1px solid #eee; border-radius: 12px;" />
+  <img src="assets/optimization1.png" width="49%" alt="Optimization Analysis" style="border: 1px solid #eee; border-radius: 12px;" />
 </div>
 
 4. **Giám sát Thời gian thực:** Hiển thị vị trí shipper và tiến độ đơn hàng trên bản đồ nhiệt.
 <div align="center">
-  <img src="assets/monitor.png" width="100%" alt="Monitor" style="border: 1px solid #eee; border-radius: 8px;" />
+  <img src="assets/monitor.png" width="100%" alt="Monitor" style="border: 1px solid #eee; border-radius: 12px; margin-top: 20px;" />
 </div>
 
 ---
